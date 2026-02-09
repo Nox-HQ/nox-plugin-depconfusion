@@ -1,0 +1,9 @@
+{
+  "name": "safe-app",
+  "version": "1.0.0",
+  "dependencies": {
+    "express": "^4.18.0",
+    "lodash": "^4.17.21",
+    "axios": "^1.4.0"
+  }
+}
