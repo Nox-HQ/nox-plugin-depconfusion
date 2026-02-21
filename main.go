@@ -35,19 +35,19 @@ var internalPrefixes = []struct {
 
 // manifestFiles maps package manifest filenames to their ecosystem.
 var manifestFiles = map[string]string{
-	"package.json":      "npm",
-	"requirements.txt":  "pip",
-	"setup.py":          "pip",
-	"setup.cfg":         "pip",
-	"pyproject.toml":    "pip",
-	"Pipfile":           "pip",
-	"Gemfile":           "gem",
-	"go.mod":            "go",
-	"pom.xml":           "maven",
-	"build.gradle":      "gradle",
-	"build.gradle.kts":  "gradle",
-	"composer.json":     "composer",
-	"Cargo.toml":        "cargo",
+	"package.json":     "npm",
+	"requirements.txt": "pip",
+	"setup.py":         "pip",
+	"setup.cfg":        "pip",
+	"pyproject.toml":   "pip",
+	"Pipfile":          "pip",
+	"Gemfile":          "gem",
+	"go.mod":           "go",
+	"pom.xml":          "maven",
+	"build.gradle":     "gradle",
+	"build.gradle.kts": "gradle",
+	"composer.json":    "composer",
+	"Cargo.toml":       "cargo",
 }
 
 // privateRegistryConfigs maps ecosystems to their expected private registry
@@ -298,7 +298,7 @@ func scanPipManifest(resp *sdk.ResponseBuilder, filePath string) {
 	if err != nil {
 		return
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	scanner := bufio.NewScanner(f)
 	lineNum := 0
@@ -347,7 +347,7 @@ func scanPipManifest(resp *sdk.ResponseBuilder, filePath string) {
 		if err != nil {
 			return
 		}
-		defer f2.Close()
+		defer func() { _ = f2.Close() }()
 
 		scanner2 := bufio.NewScanner(f2)
 		lineNum2 := 0
@@ -386,7 +386,7 @@ func scanGoMod(resp *sdk.ResponseBuilder, filePath string) {
 	if err != nil {
 		return
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	scanner := bufio.NewScanner(f)
 	lineNum := 0
@@ -484,12 +484,17 @@ func checkMissingRegistryConfig(resp *sdk.ResponseBuilder, workspaceRoot, ecosys
 }
 
 func main() {
+	os.Exit(run())
+}
+
+func run() int {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
 	srv := buildServer()
 	if err := srv.Serve(ctx); err != nil {
 		fmt.Fprintf(os.Stderr, "nox-plugin-depconfusion: %v\n", err)
-		os.Exit(1)
+		return 1
 	}
+	return 0
 }

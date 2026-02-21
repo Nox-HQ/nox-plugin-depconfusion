@@ -42,14 +42,14 @@ func TestScanNPMNamespaceCollision(t *testing.T) {
 	hasCompanyPrefix := false
 	for _, f := range found {
 		pkg := f.GetMetadata()["package"]
-		switch {
-		case pkg == "@internal/auth-service":
+		switch pkg {
+		case "@internal/auth-service":
 			hasInternal = true
-		case pkg == "@private/billing-api":
+		case "@private/billing-api":
 			hasPrivate = true
-		case pkg == "internal-test-utils":
+		case "internal-test-utils":
 			hasInternalPrefix = true
-		case pkg == "company-eslint-config":
+		case "company-eslint-config":
 			hasCompanyPrefix = true
 		}
 	}
@@ -232,7 +232,7 @@ func testClient(t *testing.T) pluginv1.PluginServiceClient {
 	if err != nil {
 		t.Fatalf("grpc.NewClient: %v", err)
 	}
-	t.Cleanup(func() { conn.Close() })
+	t.Cleanup(func() { _ = conn.Close() })
 
 	return pluginv1.NewPluginServiceClient(conn)
 }

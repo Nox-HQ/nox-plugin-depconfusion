@@ -1,0 +1,7 @@
+name: nox-plugin-depconfusion
+version: 0.1.0
+track: supply-chain
+description: Dependency confusion guard for supply chain security
+tools:
+  - name: scan
+    description: Scan for dependency confusion risks in package manifests
