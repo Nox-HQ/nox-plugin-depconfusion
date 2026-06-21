@@ -471,11 +471,15 @@ func checkMissingRegistryConfig(resp *sdk.ResponseBuilder, workspaceRoot, ecosys
 	configs := privateRegistryConfigs[ecosystem]
 	configNames := strings.Join(configs, ", ")
 
+	// Advisory, not a confusion finding: a missing private-registry config is a
+	// hardening recommendation that applies to any project; it is only a
+	// concrete dependency-confusion risk when internal packages are present
+	// (which DEPCONF-001/003 flag separately). Low severity so it never gates.
 	resp.Finding(
 		"DEPCONF-002",
-		sdk.SeverityMedium,
-		sdk.ConfidenceMedium,
-		fmt.Sprintf("No private registry configuration found for %s ecosystem (expected one of: %s)", ecosystem, configNames),
+		sdk.SeverityLow,
+		sdk.ConfidenceLow,
+		fmt.Sprintf("Advisory: no private registry configuration found for %s ecosystem (expected one of: %s) — pin a private registry to harden against dependency confusion", ecosystem, configNames),
 	).
 		At(workspaceRoot, 0, 0).
 		WithMetadata("ecosystem", ecosystem).

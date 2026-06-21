@@ -265,3 +265,22 @@ func findByRule(findings []*pluginv1.Finding, ruleID string) []*pluginv1.Finding
 	}
 	return result
 }
+
+// TestSafeProjectsNoFindings is the broadened FP guard: projects that depend
+// only on well-known public packages (no internal/private-looking names) must
+// produce ZERO dependency-CONFUSION findings (DEPCONF-001 namespace collision,
+// DEPCONF-003 internal package) across npm, pip, and go. DEPCONF-002 (the
+// missing-registry-config advisory) is allowed — it is hardening guidance, not
+// a confusion false positive.
+func TestSafeProjectsNoFindings(t *testing.T) {
+	client := testClient(t)
+	for _, dir := range []string{"safe-npm", "safe-pip", "safe-go"} {
+		resp := invokeScan(t, client, filepath.Join(testdataDir(t), dir))
+		for _, f := range resp.GetFindings() {
+			if f.GetRuleId() == "DEPCONF-002" {
+				continue // advisory, not a confusion finding
+			}
+			t.Errorf("%s: unexpected confusion finding %s", dir, f.GetRuleId())
+		}
+	}
+}

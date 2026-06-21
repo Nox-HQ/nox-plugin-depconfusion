@@ -1,5 +1,5 @@
 name: nox-plugin-depconfusion
-version: 0.1.0
+version: 0.3.0
 track: supply-chain
 description: Dependency confusion guard for supply chain security
 tools:

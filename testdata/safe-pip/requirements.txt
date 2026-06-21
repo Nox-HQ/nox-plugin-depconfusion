@@ -1,0 +1,5 @@
+# Only well-known public PyPI packages — no internal/private names.
+flask==2.3.0
+requests==2.31.0
+sqlalchemy==2.0.0
+numpy==1.26.0
