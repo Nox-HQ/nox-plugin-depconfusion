@@ -1,0 +1,9 @@
+# nox self-scan configuration.
+#
+# testdata/ holds this plugin's ground-truth fixtures: dependency-confusion fixtures pin deliberately vulnerable versions (VULN-001).
+# They are the inputs the plugin is built to detect, not defects in the plugin,
+# so the self-scan must not report them — otherwise the gate fills with known
+# false positives and stops being read.
+scan:
+  exclude:
+    - "testdata/"
