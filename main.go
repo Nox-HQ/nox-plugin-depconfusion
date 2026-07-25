@@ -86,6 +86,40 @@ type composerJSON struct {
 // reScopedPackage matches npm scoped packages (@scope/name).
 var reScopedPackage = regexp.MustCompile(`^@[a-z0-9][\w.-]*/`)
 
+// publicScopes are npm scopes owned by well-known public projects.
+//
+// Dependency confusion is the risk that a PRIVATE name — one an attacker can
+// claim on the public registry to shadow an internal package — resolves to the
+// attacker's copy instead. These scopes have no private original to shadow: the
+// public registry is their correct and only source, and the scope itself is
+// already owned by the project that publishes it. Reporting them as "ambiguous
+// source" flagged the most ordinary dependencies in the ecosystem — nox's own
+// VS Code extension was flagged for @types/node and @types/vscode — and that
+// noise buries the finding that matters (@internal/*, @private/*), which still
+// fires.
+//
+// Deliberately a short, conservative list of scopes that are unambiguously
+// public infrastructure. An unknown scope is still reported: for a rule about
+// names an attacker could claim, failing toward reporting is the safe default.
+var publicScopes = map[string]bool{
+	"@types":             true, // DefinitelyTyped
+	"@babel":             true,
+	"@eslint":            true,
+	"@typescript-eslint": true,
+	"@angular":           true,
+	"@vue":               true,
+	"@nestjs":            true,
+	"@storybook":         true,
+	"@vitest":            true,
+	"@playwright":        true,
+	"@rollup":            true,
+	"@swc":               true,
+	"@vscode":            true,
+	"@octokit":           true,
+	"@jest":              true,
+	"@testing-library":   true,
+}
+
 // rePipRequirement matches a pip requirement line (package==version or package>=version).
 var rePipRequirement = regexp.MustCompile(`^([a-zA-Z0-9][\w.-]+)`)
 
@@ -252,6 +286,13 @@ func checkScopedPackageSource(resp *sdk.ResponseBuilder, filePath, depName, depV
 		return
 	}
 	scope := parts[0]
+
+	// A well-known public scope has no private original an attacker could
+	// shadow, so its resolution to the public registry is correct, not
+	// ambiguous. See publicScopes.
+	if publicScopes[scope] {
+		return
+	}
 
 	// Check if .npmrc exists in the same directory with a registry for this scope.
 	dir := filepath.Dir(filePath)
