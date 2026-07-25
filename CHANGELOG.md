@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+- chore(deps): Go 1.26.5 and nox SDK v1.17.0 (#26)
+- chore(deps): bump actions/setup-go from 6.5.0 to 7.0.0 (#19)
+
+
 ## [0.2.3] - 2026-07-25
 
 ### Fixed
