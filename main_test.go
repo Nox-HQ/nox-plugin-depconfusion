@@ -284,3 +284,23 @@ func TestSafeProjectsNoFindings(t *testing.T) {
 		}
 	}
 }
+
+// DEPCONF-003 fired on any scoped package lacking an .npmrc, which made it
+// report the most ordinary dependencies in the npm ecosystem. nox's own VS Code
+// extension was flagged for `@types/node` and `@types/vscode`.
+//
+// Dependency confusion is the risk that a PRIVATE name — one an attacker can
+// register on the public registry to shadow an internal package — resolves to
+// the public copy. `@types`, `@babel`, `@eslint` are canonical PUBLIC scopes
+// owned by their projects: there is no private original to shadow, so the
+// public registry is the correct and only source. Flagging them is noise that
+// buries the real signal (@internal/*, @private/*, which must still fire).
+func TestScanPublicScopesAreNotAmbiguous(t *testing.T) {
+	client := testClient(t)
+	resp := invokeScan(t, client, filepath.Join(testdataDir(t), "public-scopes"))
+
+	for _, f := range findByRule(resp.GetFindings(), "DEPCONF-003") {
+		t.Errorf("DEPCONF-003 fired on well-known public scope package %q; only shadowable private scopes should be reported",
+			f.GetMetadata()["package"])
+	}
+}
