@@ -1,5 +1,7 @@
 # nox-plugin-depconfusion
 
+[![nox security grade](.github/nox-badge.svg)](https://github.com/nox-hq/nox)
+
 **Dependency confusion guard for supply chain security.**
 
 ## Overview
